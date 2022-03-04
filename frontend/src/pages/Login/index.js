@@ -43,7 +43,6 @@ const LoginPage = () => {
               <h1>Login</h1>
               <Divider />
               <div className="site-layout-content">
-                {" "}
                 <Form
                   name="normal_login"
                   className="login-form"
@@ -65,6 +64,7 @@ const LoginPage = () => {
                       prefix={<UserOutlined className="site-form-item-icon" />}
                       placeholder="admin@demo.com"
                       autoComplete="off"
+                      type="email"
                     />
                   </Form.Item>
                   <Form.Item
@@ -87,10 +87,6 @@ const LoginPage = () => {
                     <Form.Item name="remember" valuePropName="checked" noStyle>
                       <Checkbox>Remember me</Checkbox>
                     </Form.Item>
-
-                    <a className="login-form-forgot" href="/forgot">
-                      Forgot password
-                    </a>
                   </Form.Item>
 
                   <Form.Item>
@@ -102,7 +98,6 @@ const LoginPage = () => {
                     >
                       Log in
                     </Button>
-                    Or <a href="/register">register now!</a>
                   </Form.Item>
                 </Form>
               </div>

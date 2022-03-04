@@ -10,7 +10,7 @@ const PersonSchema = new Schema({
     type: String,
     required: true,
   },
-  email: {
+  mobile: {
     type: String,
     required: true,
   },

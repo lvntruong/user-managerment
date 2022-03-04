@@ -1,21 +1,23 @@
 const CompanyModel = require("../models/companyModel");
+const ObjectId = require("mongodb").ObjectId;
 
 const readCompany = async (req, res) => {
   try {
     // Find document by id
     const result = await CompanyModel.aggregate([
+      { $addFields: { companyId: { $toString: "$_id" } } },
       // Join
       {
         $lookup: {
           from: "people",
-          localField: "_id",
+          localField: "companyId",
           foreignField: "companyId",
           as: "person",
         },
       },
       {
         $match: {
-          $and: [{ _id: req.params.id }],
+          $and: [{ _id: new ObjectId(req.params.id) }],
         },
       },
     ]);
@@ -49,7 +51,6 @@ const createCompany = async (req, res) => {
     // Creating a new document in the collection
 
     const result = await new CompanyModel(req.body).save();
-    console.log(result);
     // Returning successfull response
     return res.status(200).json({
       success: true,
@@ -152,7 +153,7 @@ const listCompnay = async (req, res) => {
       .sort({ created: "desc" })
       .populate();
     // Counting the total documents
-    const countPromise = Model.count();
+    const countPromise = CompanyModel.count();
     // Resolving both promises
     const [result, count] = await Promise.all([resultsPromise, countPromise]);
     // Calculating total pages
@@ -175,7 +176,7 @@ const listCompnay = async (req, res) => {
         message: "Collection is Empty",
       });
     }
-  } catch {
+  } catch (err) {
     return res
       .status(500)
       .json({ success: false, result: [], message: "Oops there is an Error" });

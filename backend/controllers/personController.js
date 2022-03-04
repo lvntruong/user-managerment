@@ -1,21 +1,23 @@
 const PersonModel = require("../models/personModel");
+const ObjectId = require("mongodb").ObjectId;
 
 const readPerson = async (req, res) => {
   try {
     // Find document by id
     const result = await PersonModel.aggregate([
+      { $addFields: { companyIdObj: { $toObjectId: "$companyId" } } },
       // Join
       {
         $lookup: {
           from: "companies",
-          localField: "companyId",
+          localField: "companyIdObj",
           foreignField: "_id",
           as: "company",
         },
       },
       {
         $match: {
-          $and: [{ _id: req.params.id }],
+          $and: [{ _id: new ObjectId(req.params.id) }],
         },
       },
     ]);
@@ -49,7 +51,6 @@ const createPerson = async (req, res) => {
     // Creating a new document in the collection
 
     const result = await new PersonModel(req.body).save();
-    console.log(result);
     // Returning successfull response
     return res.status(200).json({
       success: true,
@@ -114,7 +115,7 @@ const updatePerson = async (req, res) => {
 const deletePerson = async (req, res) => {
   try {
     // Find the document by id and delete it
-    const result = await PerSonModel.findOneAndDelete({
+    const result = await PersonModel.findOneAndDelete({
       _id: req.params.id,
     }).exec();
     // If no results found, return document not found
@@ -146,13 +147,13 @@ const listPerson = async (req, res) => {
   const skip = page * limit - limit;
   try {
     //  Query the database for a list of all results
-    const resultsPromise = PerSonModel.find()
+    const resultsPromise = PersonModel.find()
       .skip(skip)
       .limit(limit)
       .sort({ created: "desc" })
       .populate();
     // Counting the total documents
-    const countPromise = Model.count();
+    const countPromise = PersonModel.count();
     // Resolving both promises
     const [result, count] = await Promise.all([resultsPromise, countPromise]);
     // Calculating total pages
@@ -202,7 +203,7 @@ const searchPerson = async (req, res) => {
   }
 
   try {
-    let results = await PerSonModel.find(fields)
+    let results = await PersonModel.find(fields)
       .sort({ name: "asc" })
       .limit(10);
 

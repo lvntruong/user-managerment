@@ -3,13 +3,15 @@ import storeLocal from "../storeLocal";
 import { createBrowserHistory } from "history";
 import axios from "axios";
 import { errorHandler, successHandler } from "../../request/handleReponse";
-import { API_BASE_URL } from "../../config";
 
 const history = createBrowserHistory();
 
 const postLogin = async (data) => {
   try {
-    const response = await axios.post(API_BASE_URL + "/login", data);
+    const response = await axios.post(
+      process.env.REACT_APP_API_URL + "/login",
+      data
+    );
     storeLocal.set("token", response.data.result.token);
     return successHandler(response);
   } catch (error) {

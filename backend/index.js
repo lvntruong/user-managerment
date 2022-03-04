@@ -1,10 +1,8 @@
 const express = require("express");
 const app = express();
 
-const configs = require("./configs");
-
-const { PORT, HOST } = configs;
-configs.APP_PATH = __dirname;
+//config .env file
+require("dotenv").config();
 
 const path = require("path");
 
@@ -33,6 +31,6 @@ app.all("*", (req, res) => {
   res.sendStatus(404);
 });
 
-app.listen(PORT, HOST, () => {
-  console.log("Server is running at " + PORT);
+app.listen(process.env.PORT, process.env.HOST, () => {
+  console.log("Server is running at " + process.env.PORT);
 });
