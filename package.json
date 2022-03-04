@@ -1,0 +1,23 @@
+{
+  "name": "manage-companies",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "(cd backend && npm install) & (cd frontend && npm install)",
+    "start": "npm run start-backend & npm run start-frontend",
+    "start-backend": "cd backend && npm run start",
+    "start-frontend": "cd frontend && npm run start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phucle24hdev/manage-companies.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/phucle24hdev/manage-companies/issues"
+  },
+  "homepage": "https://github.com/phucle24hdev/manage-companies#readme"
+}
