@@ -1,5 +1,5 @@
 import axios from "axios";
-import storeLocal from "../redux/storeLocal";
+import storeLocal from "../utils/storeLocal";
 import { errorHandler, successHandler } from "./handleReponse";
 
 const headersInstance = { Authorization: "Bearer " + storeLocal.get("token") };

@@ -1,7 +1,5 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Layout } from "antd";
-import { useSelector } from "react-redux";
-import { selectAuth } from "../redux/auth/selectors";
 import { Redirect, Route, Switch, useLocation } from "react-router-dom";
 import LoginPage from "../pages/Login";
 import NotFound from "../pages/NotFound";
@@ -11,16 +9,12 @@ import PrivateRoute from "./privateRouter";
 import Navigation from "../components/Navigation";
 import Person from "../pages/Person";
 import HeaderContent from "../components/Header";
+import storeLocal from "../utils/storeLocal";
 
 export default function Router() {
-  const { isLoggedIn } = useSelector(selectAuth);
   const location = useLocation();
 
-  useEffect(() => {
-    console.log("isLoggedIn : ", isLoggedIn);
-  }, [isLoggedIn]);
-
-  if (isLoggedIn === false)
+  if (!storeLocal.get("token"))
     return (
       <Layout style={{ minHeight: "100vh" }}>
         <Switch location={location} key={location.pathname}>

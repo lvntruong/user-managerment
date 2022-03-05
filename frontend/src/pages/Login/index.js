@@ -1,32 +1,23 @@
 import React, { useEffect, useState } from "react";
-import {
-  Form,
-  Input,
-  Button,
-  Checkbox,
-  Layout,
-  Row,
-  Col,
-  Divider,
-  message,
-} from "antd";
+import { Form, Input, Button, Checkbox, Layout, Row, Col, Divider } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
-import { login } from "../../redux/auth/actions";
-import { useDispatch, useSelector } from "react-redux";
-import { selectAuth } from "../../redux/auth/selectors";
+import { request } from "../../request";
+import storeLocal from "../../utils/storeLocal";
+import history from "../../utils/history";
 const { Content } = Layout;
 
 const LoginPage = () => {
-  const [error, setError] = useState();
+  const [loading, setLoading] = useState();
 
-  const { loading: isLoading } = useSelector(selectAuth);
-
-  useEffect(() => {
-    error && message.error(error, () => setError());
-  }, [error]);
-  const dispatch = useDispatch();
-  const onFinish = (values) => {
-    dispatch(login(values));
+  const onFinish = async (values) => {
+    setLoading(true);
+    const data = await request.post("/login", values);
+    if (data.success) {
+      storeLocal.set("token", data.result.token);
+      storeLocal.set("user", data.result.user);
+      history.push("/");
+    }
+    setLoading(false);
   };
   return (
     <>
@@ -94,7 +85,7 @@ const LoginPage = () => {
                       type="primary"
                       htmlType="submit"
                       className="login-form-button"
-                      loading={isLoading}
+                      loading={loading}
                     >
                       Log in
                     </Button>

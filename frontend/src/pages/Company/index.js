@@ -2,18 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Layout, Button, PageHeader, Form, Input, Modal, Table } from "antd";
 import DataTable from "../../components/DataTable";
 import { EyeOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import { useSelector, useDispatch } from "react-redux";
-import { crud } from "../../redux/crud/actions";
-import {
-  selectCreatedItem,
-  selectDeletedItem,
-  selectUpdatedItem,
-} from "../../redux/crud/selectors";
 import { request } from "../../request";
 const { Content } = Layout;
 
 const Company = () => {
-  const entry = "company";
+  const entity = "company";
   const [modelShow, setModelShow] = useState(false);
   const [modelAdd, setModelAdd] = useState(false);
   const [modelEdit, setModelEdit] = useState(false);
@@ -22,18 +15,9 @@ const Company = () => {
   const [currentRow, setCurrentRow] = useState();
   const [currentCompany, setCurrentCompany] = useState();
 
+  const [refreshTable, setRefreshTable] = useState(true);
   const [formAdd] = Form.useForm();
-
-  const addStatus = useSelector(selectCreatedItem);
-  const deleteStatus = useSelector(selectDeletedItem);
-  const updateStatus = useSelector(selectUpdatedItem);
-  useEffect(() => {
-    if (addStatus.isSuccess) {
-      setModelAdd(false);
-      dispatch(crud.list(entry));
-      formAdd.resetFields();
-    }
-  }, [addStatus]);
+  const [formEdit] = Form.useForm();
 
   useEffect(() => {
     const getData = async () => {
@@ -41,31 +25,14 @@ const Company = () => {
       setCurrentCompany(res);
     };
 
-    if (currentRow) {
-      getData();
-    }
+    getData();
   }, [currentRow]);
 
-  useEffect(() => {
-    if (deleteStatus.isSuccess) {
-      setModelDelete(false);
-      dispatch(crud.resetState());
-      dispatch(crud.list(entry));
-    }
-  }, [deleteStatus]);
-
-  useEffect(() => {
-    if (updateStatus.isSuccess) {
-      setModelEdit(false);
-      dispatch(crud.resetState());
-      dispatch(crud.list(entry));
-    }
-  }, [updateStatus]);
-
-  const dispatch = useDispatch();
-
   function Delete() {
-    dispatch(crud.delete(entry, currentRow._id));
+    request.delete(entity, currentRow._id).then((res) => {
+      setModelDelete(false);
+      setRefreshTable(!refreshTable);
+    });
   }
 
   const handelAddCompany = () => {
@@ -73,11 +40,18 @@ const Company = () => {
   };
 
   const handleAdd = (data) => {
-    dispatch(crud.create(entry, data));
+    request.create(entity, data).then((res) => {
+      setModelAdd(false);
+      formAdd.resetFields();
+      setRefreshTable(!refreshTable);
+    });
   };
 
   const handleEdit = (data) => {
-    dispatch(crud.update(entry, currentRow._id, data));
+    request.update(entity, currentRow._id, data).then((res) => {
+      setModelEdit(false);
+      setRefreshTable(!refreshTable);
+    });
   };
 
   const dataTableColumns = [
@@ -167,8 +141,9 @@ const Company = () => {
             }}
           ></PageHeader>
           <DataTable
-            entry={entry}
+            entity={entity}
             dataTableColumns={dataTableColumns}
+            refresh={refreshTable}
           ></DataTable>
         </Content>
       </Layout>
@@ -278,7 +253,7 @@ const Company = () => {
         ]}
       >
         {currentRow && (
-          <Form onFinish={handleEdit} id={"edit-form"}>
+          <Form onFinish={handleEdit} id={"edit-form"} form={formEdit}>
             <Form.Item
               label="Company Name"
               name="name"

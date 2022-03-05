@@ -2,18 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Layout, Button, PageHeader, Form, Input, Modal, Cascader } from "antd";
 import DataTable from "../../components/DataTable";
 import { EyeOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import { useSelector, useDispatch } from "react-redux";
-import { crud } from "../../redux/crud/actions";
 import { request } from "../../request";
-import {
-  selectCreatedItem,
-  selectDeletedItem,
-  selectUpdatedItem,
-} from "../../redux/crud/selectors";
 const { Content } = Layout;
 
 const Person = () => {
-  const entry = "person";
+  const entity = "person";
   const [modelShow, setModelShow] = useState(false);
   const [modelAdd, setModelAdd] = useState(false);
   const [modelEdit, setModelEdit] = useState(false);
@@ -24,11 +17,8 @@ const Person = () => {
 
   const [formAdd] = Form.useForm();
 
-  const addStatus = useSelector(selectCreatedItem);
-  const deleteStatus = useSelector(selectDeletedItem);
-  const updateStatus = useSelector(selectUpdatedItem);
-
   const [listCompany, setListCompany] = useState([]);
+  const [refreshTable, setRefreshTable] = useState(true);
 
   useEffect(() => {
     const getData = async () => {
@@ -56,58 +46,39 @@ const Person = () => {
     }
   }, [currentRow]);
 
-  useEffect(() => {
-    if (addStatus.isSuccess) {
-      setModelAdd(false);
-      dispatch(crud.list(entry));
-      formAdd.resetFields();
-    }
-  }, [addStatus]);
-
-  useEffect(() => {
-    if (deleteStatus.isSuccess) {
-      setModelDelete(false);
-      dispatch(crud.resetState());
-      dispatch(crud.list(entry));
-    }
-  }, [deleteStatus]);
-
-  useEffect(() => {
-    if (updateStatus.isSuccess) {
-      setModelEdit(false);
-      dispatch(crud.resetState());
-      dispatch(crud.list(entry));
-    }
-  }, [updateStatus]);
-
-  const dispatch = useDispatch();
-
   function Delete() {
-    dispatch(crud.delete(entry, currentRow._id));
+    request.delete(entity, currentRow._id).then((res) => {
+      setModelDelete(false);
+      setRefreshTable(!refreshTable);
+    });
   }
 
   const handelAddPerson = () => {
     setModelAdd(true);
   };
 
-  const handleAdd = (data) => {
+  const handleAdd = async (data) => {
     const { companyId, ...splitData } = data;
-    dispatch(
-      crud.create(entry, {
-        ...splitData,
-        companyId: companyId[0] && companyId[0],
-      })
-    );
+    const res = await request.create(entity, {
+      ...splitData,
+      companyId: companyId[0] && companyId[0],
+    });
+    if (res.success) {
+      setModelAdd(false);
+      setRefreshTable(!refreshTable);
+    }
   };
 
-  const handleEdit = (data) => {
+  const handleEdit = async (data) => {
     const { companyId, ...splitData } = data;
-    dispatch(
-      crud.update(entry, currentRow._id, {
-        ...splitData,
-        companyId: companyId[0] && companyId[0],
-      })
-    );
+    const res = await request.update(entity, currentRow._id, {
+      ...splitData,
+      companyId: companyId[0] && companyId[0],
+    });
+    if (res.success) {
+      setModelEdit(false);
+      setRefreshTable(!refreshTable);
+    }
   };
 
   const dataTableColumns = [
@@ -182,8 +153,9 @@ const Person = () => {
             }}
           ></PageHeader>
           <DataTable
-            entry={entry}
+            entity={entity}
             dataTableColumns={dataTableColumns}
+            refresh={refreshTable}
           ></DataTable>
         </Content>
       </Layout>

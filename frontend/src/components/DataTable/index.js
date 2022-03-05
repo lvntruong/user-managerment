@@ -1,30 +1,33 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Table } from "antd";
-import { useSelector, useDispatch } from "react-redux";
-import { crud } from "../../redux/crud/actions";
-import { selectListItems } from "../../redux/crud/selectors";
+import { request } from "../../request";
 
-export default function DataTable({ entry, dataTableColumns }) {
-  const { result: listResult, isLoading: listIsLoading } =
-    useSelector(selectListItems);
-
-  const { pagination, items } = listResult;
-
-  const dispatch = useDispatch();
+export default function DataTable({ entity, dataTableColumns, refresh }) {
+  // const { pagination, items } = listResult;
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState();
+  const [pagination, setPagination] = useState();
 
   useEffect(() => {
-    dispatch(crud.resetState());
-    dispatch(crud.list(entry));
-  }, [entry]);
+    setLoading(true);
+    const getData = async () => {
+      const data = await request.list(entity);
+
+      setData(data.result);
+      setPagination(data.pagination);
+      setLoading(false);
+    };
+    getData();
+  }, [refresh]);
 
   return (
     <>
       <Table
         columns={dataTableColumns}
         rowKey={(item) => item._id}
-        dataSource={items}
+        dataSource={data}
         pagination={pagination}
-        loading={listIsLoading}
+        loading={loading}
       />
     </>
   );

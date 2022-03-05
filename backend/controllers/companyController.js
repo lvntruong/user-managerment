@@ -1,4 +1,5 @@
 const CompanyModel = require("../models/companyModel");
+const PerSonModel = require("../models/personModel");
 const ObjectId = require("mongodb").ObjectId;
 
 const readCompany = async (req, res) => {
@@ -126,6 +127,15 @@ const deleteCompany = async (req, res) => {
         message: "No document found by this id: " + req.params.id,
       });
     } else {
+      PerSonModel.find({ companyId: result._id }, (err, people) => {
+        if (err) {
+          console.log("Error cascading company update to person", { err });
+        }
+        people.map((person) => {
+          person.companyId = null;
+          person.save();
+        });
+      });
       return res.status(200).json({
         success: true,
         result,

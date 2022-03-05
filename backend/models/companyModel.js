@@ -27,18 +27,4 @@ const CompanySchema = new Schema({
 
 const CompanyModel = mongoose.model("Company", CompanySchema);
 
-CompanySchema.pre("deleteOne", { document: true }, (next) => {
-  let companyId = this._id;
-
-  PerSonModel.find({ companyId: companyId }, (err, people) => {
-    if (err) {
-      console.log("Error cascading company update to person", { err });
-    }
-    people.map((person) => {
-      person.companyId = null;
-      person.save();
-    });
-  });
-});
-
 module.exports = CompanyModel;

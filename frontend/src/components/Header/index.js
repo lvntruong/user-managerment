@@ -1,18 +1,22 @@
 import React from "react";
-import { useDispatch } from "react-redux";
 
 import { Layout, Avatar, Menu, Dropdown } from "antd";
-
+import storeLocal from "../../utils/storeLocal";
 import { UserOutlined } from "@ant-design/icons";
-import { logout } from "../../redux/auth/actions";
+import history from "../../utils/history";
 const { Header } = Layout;
 
 export default function HeaderContent() {
-  const dispatch = useDispatch();
-
   const menu = (
     <Menu>
-      <Menu.Item onClick={() => dispatch(logout())}>logout</Menu.Item>
+      <Menu.Item
+        onClick={() => {
+          storeLocal.clear();
+          history.push("/login");
+        }}
+      >
+        logout
+      </Menu.Item>
     </Menu>
   );
   return (
